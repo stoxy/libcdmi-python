@@ -32,7 +32,8 @@ class TestBasic(unittest.TestCase):
         requests_put.assert_called_once_with(self._endpoint + '/container/',
                          expected_metadata,
                          headers={'Content-Type': 'application/cdmi-container',
-                                  'Accept': 'application/cdmi-container'},
+                                  'Accept': 'application/cdmi-container',
+                                  'X-CDMI-Specification-Version': '1.0.2'},
                                              auth=None)
 
         expected_metadata = ('{"mimetype": "text/plain", '
@@ -44,4 +45,5 @@ class TestBasic(unittest.TestCase):
             self._endpoint + '/container/blob',
             expected_metadata,
             headers={'Content-Type': 'application/cdmi-object',
-                     'Accept': 'application/cdmi-object'}, auth=None)
+                     'Accept': 'application/cdmi-object',
+                     'X-CDMI-Specification-Version': '1.0.2'}, auth=None)
