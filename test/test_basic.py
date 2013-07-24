@@ -8,22 +8,36 @@ from mock import MagicMock
 
 class TestBasic(unittest.TestCase):
     _endpoint = 'http://localhost:8080'
+    _mock_up_marker = object()
 
     def setUp(self):
+        self._cleanup = []
         fh, self._filename = tempfile.mkstemp(prefix='libcdmi-test-')
         os.close(fh) # allow opening by the library
 
     def tearDown(self):
         os.unlink(self._filename)
 
+        for method, args, kwargs in self._cleanup:
+            method(*args, **kwargs)
+
     def addToCleanup(self, method, *args, **kw):
         self._cleanup.append((method, args, kw))
 
+    def mockUp(self, container, object_name, new_value=_mock_up_marker):
+        if new_value is self._mock_up_marker:
+            new_value = MagicMock()
+        old_value = getattr(container, object_name)
+        setattr(container, object_name, new_value)
+        self.addToCleanup(setattr, container, object_name, old_value)
+        return new_value
+
     def test_container_and_blob_create_and_delete_mock_requests(self):
         c = libcdmi.open(self._endpoint)
-        self.assertTrue(c), 'Could not create connection %s' % self._endpoint
 
-        requests_put = libcdmi.connection.requests.put = MagicMock()
+        self.assertTrue(c, 'Could not create connection %s' % self._endpoint)
+
+        requests_put = self.mockUp(libcdmi.connection.requests, 'put')
 
         c.create_container('/container/')
 
@@ -47,3 +61,8 @@ class TestBasic(unittest.TestCase):
             headers={'Content-Type': 'application/cdmi-object',
                      'Accept': 'application/cdmi-object',
                      'X-CDMI-Specification-Version': '1.0.2'}, auth=None)
+
+        requests_delete = self.mockUp(libcdmi.connection.requests, 'delete')
+        c.delete('/container/blob')
+        requests_delete.assert_called_once_with(
+            self._endpoint + '/container/blob', auth=None)
