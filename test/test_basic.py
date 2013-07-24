@@ -35,8 +35,6 @@ class TestBasic(unittest.TestCase):
     def test_container_and_blob_create_and_delete_mock_requests(self):
         c = libcdmi.open(self._endpoint)
 
-        self.assertTrue(c, 'Could not create connection %s' % self._endpoint)
-
         requests_put = self.mockUp(libcdmi.connection.requests, 'put')
 
         c.create_container('/container/')
@@ -66,3 +64,34 @@ class TestBasic(unittest.TestCase):
         c.delete('/container/blob')
         requests_delete.assert_called_once_with(
             self._endpoint + '/container/blob', auth=None)
+
+    def test_open_connection(self):
+        c = libcdmi.open(self._endpoint)
+        self.assertTrue(c, 'Could not create a connection with %s!' %
+                        self._endpoint)
+        self.assertEquals(type(c), libcdmi.connection.Connection)
+        self.assertEquals(c.endpoint, self._endpoint)
+
+    def test_get_container_mock_requests(self):
+        c = libcdmi.open(self._endpoint)
+        requests_get = self.mockUp(libcdmi.connection.requests, 'get')
+        self.mockUp(libcdmi.connection.requests, 'put')
+        c.create_container('/container/')
+        c.get('/container/', accept=libcdmi.common.CDMI_CONTAINER)
+        requests_get.assert_called_once_with(self._endpoint + '/container/',
+                             headers={'Accept': 'application/cdmi-container',
+                                      'X-CDMI-Specification-Version': '1.0.2'},
+                                            auth=None)
+
+    def test_get_object_mock_requests(self):
+        c = libcdmi.open(self._endpoint)
+        requests_get = self.mockUp(libcdmi.connection.requests, 'get')
+        self.mockUp(libcdmi.connection.requests, 'put')
+
+        c.create_blob('/container/blob', self._filename)
+
+        c.get('/container/blob')
+        requests_get.assert_called_once_with(self._endpoint + '/container/blob',
+                             headers={'Accept': 'application/cdmi-object',
+                                      'X-CDMI-Specification-Version': '1.0.2'},
+                                            auth=None)

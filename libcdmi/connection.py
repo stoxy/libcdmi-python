@@ -25,17 +25,17 @@ class Connection(object):
         final_headers.update(headers)
         return final_headers
 
-    def head(self, resource):
+    def head(self, resource, accept=CDMI_OBJECT):
         """Get meta-information about a blob. Returns JSON-encoded metadata."""
-        headers = self._make_headers({'Accept': CDMI_OBJECT})
+        headers = self._make_headers({'Accept': accept})
         response = requests.head(self.endpoint + resource,
                                  auth=self.credentials, headers=headers)
         return response.headers
 
-    def get(self, resource):
+    def get(self, resource, accept=CDMI_OBJECT):
         """Read contents of a blob."""
         # put relevant headers
-        headers = self._make_headers({'Accept': CDMI_OBJECT})
+        headers = self._make_headers({'Accept': accept})
         response = requests.get(self.endpoint + resource,
                                 auth=self.credentials, headers=headers)
         return response.json()
