@@ -6,7 +6,7 @@ try:
 except ImportError:
     import simplejson as json
 
-from libcdmi.common import CDMI_OBJECT, CDMI_CONTAINER
+from libcdmi.common import CDMI_OBJECT, CDMI_CONTAINER, HEADER_CDMI_VERSION
 
 
 class ObjectProxy(object):
@@ -31,10 +31,17 @@ class Connection(object):
     def __init__(self, endpoint, credentials=None):
         self.endpoint = endpoint
         self.credentials = credentials
+        self.base_headers = HEADER_CDMI_VERSION
+
+    def _make_headers(self, headers):
+        final_headers = {}
+        final_headers.update(self.base_headers)
+        final_headers.update(headers)
+        return final_headers
 
     def head(self, resource):
         """Get meta-information about a blob. Returns JSON-encoded metadata."""
-        headers = {'Accept': CDMI_OBJECT}
+        headers = self._make_headers({'Accept': CDMI_OBJECT})
         response = requests.head(self.endpoint + resource,
                                  auth=self.credentials,
                                  headers=headers)
@@ -43,18 +50,17 @@ class Connection(object):
     def get(self, resource):
         """Read contents of a blob."""
         # put relevant headers
-        headers = {'Accept': CDMI_OBJECT}
+        headers = self._make_headers({'Accept': CDMI_OBJECT})
         response = requests.get(self.endpoint + resource,
                                 auth=self.credentials,
                                 headers=headers)
-
         return response.json()
 
     def create_container(self, resource, metadata={}):
         """Create a new container"""
         op = Container()
-        op.headers = {'Accept': op.mime_type,
-                      'Content-Type': op.mime_type}
+        op.headers = self._make_headers({'Accept': op.mime_type,
+                                         'Content-Type': op.mime_type})
 
         op.data = {'metadata': metadata}
 
@@ -69,8 +75,8 @@ class Connection(object):
     def create_blob(self, resource, local_filename, mimetype='text/plain',
                     metadata={}):
         op = Blob()
-        op.headers = {'Accept': op.mime_type,
-                      'Content-Type': op.mime_type}
+        op.headers = self._make_headers({'Accept': op.mime_type,
+                                         'Content-Type': op.mime_type})
 
         op.data = {'mimetype': mimetype,
                    'metadata': metadata}
