@@ -1,10 +1,9 @@
 from setuptools import setup, find_packages
-from version import get_git_version
 
 
 setup(
     name="libcdmi-python",
-    version=get_git_version(),
+    version='1.0alpha',
     description="""CDMI client library""",
     author="Ilja Livenson and Co",
     author_email="ilja.livenson@gmail.com",
