@@ -30,6 +30,7 @@ class Connection(object):
         headers = self._make_headers({'Accept': accept})
         response = requests.head(self.endpoint + resource,
                                  auth=self.credentials, headers=headers)
+        response.raise_for_status()
         return response.headers
 
     def get(self, resource, accept=CDMI_OBJECT):
@@ -38,6 +39,7 @@ class Connection(object):
         headers = self._make_headers({'Accept': accept})
         response = requests.get(self.endpoint + resource,
                                 auth=self.credentials, headers=headers)
+        response.raise_for_status()
         return response.json()
 
     def create_container(self, resource, metadata={}):
@@ -46,9 +48,10 @@ class Connection(object):
                                       'Content-Type': CDMI_CONTAINER})
         data = {'metadata': metadata}
 
-        res = requests.put(self.endpoint + resource, json.dumps(data),
-                           auth=self.credentials, headers=headers)
-        return res.json()
+        response = requests.put(self.endpoint + resource, json.dumps(data),
+                                auth=self.credentials, headers=headers)
+        response.raise_for_status()
+        return response.json()
 
     update_container = create_container
 
@@ -71,12 +74,15 @@ class Connection(object):
 
         data['value'] = content
 
-        res = requests.put(self.endpoint + resource, json.dumps(data),
-                           auth=self.credentials, headers=headers)
-        return res.json()
+        response = requests.put(self.endpoint + resource, json.dumps(data),
+                                auth=self.credentials, headers=headers)
+        response.raise_for_status()
+        return response.json()
 
     update_blob = create_blob
 
     def delete(self, remoteblob):
         """Delete specified blob"""
-        requests.delete(self.endpoint + remoteblob, auth=self.credentials)
+        response = requests.delete(self.endpoint + remoteblob,
+                                   auth=self.credentials)
+        response.raise_for_status()

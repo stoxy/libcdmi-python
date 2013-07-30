@@ -42,10 +42,10 @@ class TestBasic(unittest.TestCase):
         expected_metadata = ('{"metadata": {}}')
 
         requests_put.assert_called_once_with(self._endpoint + '/container/',
-                         expected_metadata,
-                         headers={'Content-Type': 'application/cdmi-container',
-                                  'Accept': 'application/cdmi-container',
-                                  'X-CDMI-Specification-Version': '1.0.2'},
+                                             expected_metadata,
+                                             headers={'Content-Type': 'application/cdmi-container',
+                                                      'Accept': 'application/cdmi-container',
+                                                      'X-CDMI-Specification-Version': '1.0.2'},
                                              auth=None)
 
         expected_metadata = ('{"mimetype": "text/plain", '
@@ -67,10 +67,9 @@ class TestBasic(unittest.TestCase):
 
     def test_open_connection(self):
         c = libcdmi.open(self._endpoint)
-        self.assertTrue(c, 'Could not create a connection with %s!' %
-                        self._endpoint)
-        self.assertEquals(type(c), libcdmi.connection.Connection)
-        self.assertEquals(c.endpoint, self._endpoint)
+        self.assertTrue(c, 'Could not create a connection with %s!' % self._endpoint)
+        self.assertEqual(type(c), libcdmi.connection.Connection)
+        self.assertEqual(c.endpoint, self._endpoint)
 
     def test_get_container_mock_requests(self):
         c = libcdmi.open(self._endpoint)
@@ -79,9 +78,9 @@ class TestBasic(unittest.TestCase):
         c.create_container('/container/')
         c.get('/container/', accept=libcdmi.common.CDMI_CONTAINER)
         requests_get.assert_called_once_with(self._endpoint + '/container/',
-                             headers={'Accept': 'application/cdmi-container',
-                                      'X-CDMI-Specification-Version': '1.0.2'},
-                                            auth=None)
+                                             headers={'Accept': 'application/cdmi-container',
+                                                      'X-CDMI-Specification-Version': '1.0.2'},
+                                             auth=None)
 
     def test_get_object_mock_requests(self):
         c = libcdmi.open(self._endpoint)
@@ -92,6 +91,15 @@ class TestBasic(unittest.TestCase):
 
         c.get('/container/blob')
         requests_get.assert_called_once_with(self._endpoint + '/container/blob',
-                             headers={'Accept': 'application/cdmi-object',
-                                      'X-CDMI-Specification-Version': '1.0.2'},
-                                            auth=None)
+                                             headers={'Accept': 'application/cdmi-object',
+                                                      'X-CDMI-Specification-Version': '1.0.2'},
+                                             auth=None)
+
+    def test_raises_error_on_bad_status_code(self):
+        c = libcdmi.open(self._endpoint)
+        requests_get = self.mockUp(libcdmi.connection.requests, 'get')
+        requests_get.return_value = MagicMock()
+        response = requests_get.return_value
+        self.mockUp(libcdmi.connection.requests, 'put')
+        c.create_container('/container/')
+        response.raise_on_status.assert_called_once_with()
