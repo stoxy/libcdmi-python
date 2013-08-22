@@ -52,7 +52,7 @@ class TestBasic(unittest.TestCase):
                              '"valuetransferencoding": "utf-8", '
                              '"value": "", "metadata": {}}')
 
-        c.create_blob('/container/blob', self._filename)
+        c.create_object('/container/blob', self._filename)
         requests_put.assert_called_with(
             self._endpoint + '/container/blob',
             expected_metadata,
@@ -62,8 +62,7 @@ class TestBasic(unittest.TestCase):
 
         requests_delete = self.mockUp(libcdmi.connection.requests, 'delete')
         c.delete('/container/blob')
-        requests_delete.assert_called_once_with(
-            self._endpoint + '/container/blob', auth=None)
+        requests_delete.assert_called_once_with(self._endpoint + '/container/blob', auth=None)
 
     def test_open_connection(self):
         c = libcdmi.open(self._endpoint)
@@ -87,7 +86,7 @@ class TestBasic(unittest.TestCase):
         requests_get = self.mockUp(libcdmi.connection.requests, 'get')
         self.mockUp(libcdmi.connection.requests, 'put')
 
-        c.create_blob('/container/blob', self._filename)
+        c.create_object('/container/blob', self._filename)
 
         c.get('/container/blob')
         requests_get.assert_called_once_with(self._endpoint + '/container/blob',

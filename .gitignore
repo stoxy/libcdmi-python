@@ -34,5 +34,8 @@ nosetests.xml
 .project
 .pydevproject
 
+# Rope
+.ropeproject
+
 .*.swp
 pyenv

@@ -2,7 +2,7 @@ import base64
 import requests
 
 try:
-    import json
+    import json; json
 except ImportError:
     import simplejson as json
 
@@ -55,7 +55,7 @@ class Connection(object):
 
     update_container = create_container
 
-    def create_blob(self, resource, local_filename, mimetype='text/plain',
+    def create_object(self, resource, local_filename, mimetype='text/plain',
                     metadata={}):
         headers = self._make_headers({'Accept': CDMI_OBJECT,
                                       'Content-Type': CDMI_OBJECT})
@@ -79,7 +79,7 @@ class Connection(object):
         response.raise_for_status()
         return response.json()
 
-    update_blob = create_blob
+    update_object = create_object
 
     def delete(self, remoteblob):
         """Delete specified blob"""
