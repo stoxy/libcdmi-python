@@ -8,7 +8,6 @@ setup(
     author="Ilja Livenson and Co",
     author_email="ilja.livenson@gmail.com",
     packages=find_packages(),
-    zip_safe=False,  # martian grok scan is incompatible with zipped eggs
     install_requires=[
         "setuptools",  # Redundant but removes a warning
         ],

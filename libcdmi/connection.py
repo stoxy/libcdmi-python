@@ -56,7 +56,7 @@ class Connection(object):
     update_container = create_container
 
     def create_object(self, resource, local_filename, mimetype='text/plain',
-                    metadata={}):
+                      metadata={}):
         headers = self._make_headers({'Accept': CDMI_OBJECT,
                                       'Content-Type': CDMI_OBJECT})
         data = {'mimetype': mimetype,
