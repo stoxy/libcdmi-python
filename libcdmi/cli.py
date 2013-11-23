@@ -6,6 +6,8 @@ Manipulates CDMI objects, stores file data and metadata to a CDMI server (like S
 """
 
 import argparse
+import os
+
 import libcdmi
 
 
@@ -40,6 +42,10 @@ def run(args, print_=True):
     if args.action != 'create_object':
         response = getattr(c, args.action)('')
     else:
+        if not args.filename:
+            return {'_error': 'Filename is mandatory with create_object'}
+        if not os.path.exists(args.filename):
+            return {'_error': 'File does not exist: "%s"' % args.filename}
         response = getattr(c, args.action)('', args.filename, mimetype=args.mimetype)
 
     if not response:

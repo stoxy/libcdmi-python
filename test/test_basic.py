@@ -85,9 +85,7 @@ class TestBasic(unittest.TestCase):
         c = libcdmi.open(self._endpoint)
         requests_get = self.mockUp(libcdmi.connection.requests, 'get')
         self.mockUp(libcdmi.connection.requests, 'put')
-
         c.create_object('/container/blob', self._filename)
-
         c.get('/container/blob')
         requests_get.assert_called_once_with(self._endpoint + '/container/blob',
                                              headers={'Accept': 'application/cdmi-object',
@@ -96,9 +94,7 @@ class TestBasic(unittest.TestCase):
 
     def test_raises_error_on_bad_status_code(self):
         c = libcdmi.open(self._endpoint)
-        requests_get = self.mockUp(libcdmi.connection.requests, 'get')
-        requests_get.return_value = MagicMock()
-        response = requests_get.return_value
-        self.mockUp(libcdmi.connection.requests, 'put')
+        requests_put = self.mockUp(libcdmi.connection.requests, 'put')
+        response = requests_put.return_value = MagicMock()
         c.create_container('/container/')
-        response.raise_on_status.assert_called_once_with()
+        response.raise_for_status.assert_called_once_with()

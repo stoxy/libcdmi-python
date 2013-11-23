@@ -8,6 +8,7 @@ setup(
     author="Ilja Livenson and Co",
     author_email="ilja.livenson@gmail.com",
     packages=find_packages(),
+    entry_points={'console_scripts': ['cdmiclient = libcdmi.cli:run']},
     install_requires=[
         "setuptools",  # Redundant but removes a warning
         ],
