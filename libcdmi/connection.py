@@ -14,14 +14,17 @@ class Connection(object):
     credentials = None
     endpoint = None
 
-    def __init__(self, endpoint, credentials=None):
+    def __init__(self, endpoint, credentials=None, keystone_token=None):
         self.endpoint = endpoint
         self.credentials = credentials
         self.base_headers = HEADER_CDMI_VERSION
+        self.keystone_token=keystone_token
 
     def _make_headers(self, headers):
         final_headers = {}
         final_headers.update(self.base_headers)
+        if self.keystone_token:
+            final_headers.update({'x-auth-token': self.keystone_token})
         final_headers.update(headers)
         return final_headers
 

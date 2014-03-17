@@ -32,21 +32,44 @@ def create_parser():
     parser.add_argument('-u', '--auth', help='Authentication credentials (user:password)')
     parser.add_argument('-o', '--output', choices=['json', 'yaml', 'raw'],
                         help='Pretty-print in a format specified (YAML, JSON or raw dict)')
+    parser.add_argument('-t', '--tokenfile', help='Path to a keystone token with PKI backend')
+    
+    # container specific arguments
+    parser.add_argument('-b', '--container_backend',
+                        help='Backend of the container to use on creation (e.g. file or swift)')
+    parser.add_argument('-p', '--container_base',
+                        help='Base URL of the container to use (swift specific)')
+
     return parser
 
 
 def run(args, print_=True):
+    print dir(args)
     credentials = tuple(args.auth.split(':')) if args.auth else None
-    c = libcdmi.open(args.url, credentials=credentials)
+    token = None
+    if args.tokenfile:
+        if not os.path.exists(args.tokenfile):
+            return {'_error': 'Specified token filename does not exist: %s' % args.tokenfile}
+        else:
+            with open(args.tokenfile) as json_token:
+                import json
+                data = json.load(json_token)
+                token = data['access']['token']['id']
+    c = libcdmi.open(args.url, credentials=credentials, keystone_token=token)
 
-    if args.action != 'create_object':
-        response = getattr(c, args.action)('')
-    else:
+    # process some commands in a more specific way
+    if args.action == 'create_object':
         if not args.filename:
             return {'_error': 'Filename is mandatory with create_object'}
         if not os.path.exists(args.filename):
             return {'_error': 'File does not exist: "%s"' % args.filename}
         response = getattr(c, args.action)('', args.filename, mimetype=args.mimetype)
+    elif args.action == 'create_container':
+        response = c.create_container('',  # url is defining the full path
+                                      metadata={'stoxy_backend': args.container_backend,
+                                                'stoxy_backend_base_protocol': args.container_base})
+    else:
+        response = getattr(c, args.action)('')
 
     if not response:
         return
@@ -68,4 +91,4 @@ def run(args, print_=True):
 if __name__ == '__main__':
     parser = create_parser()
     args = parser.parse_args()
-    run(args)
+    print run(args)
