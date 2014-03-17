@@ -64,7 +64,7 @@ def run(args, print_=True):
         if not os.path.exists(args.filename):
             return {'_error': 'File does not exist: "%s"' % args.filename}
         response = getattr(c, args.action)('', args.filename, mimetype=args.mimetype)
-    elif args.action == 'create_container':
+    elif args.action in ['create_container', 'update_container']:
         response = c.create_container('',  # url is defining the full path
                                       metadata={'stoxy_backend': args.container_backend,
                                                 'stoxy_backend_base_protocol': args.container_base})
