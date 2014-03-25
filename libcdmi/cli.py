@@ -38,13 +38,12 @@ def create_parser():
     parser.add_argument('-b', '--container_backend',
                         help='Backend of the container to use on creation (e.g. file or swift)')
     parser.add_argument('-p', '--container_base',
-                        help='Base URL of the container to use (swift specific)')
+                        help='Base URL of the container to use (e.g. url of a swift bucket)')
 
     return parser
 
 
 def run(args, print_=True):
-    print dir(args)
     credentials = tuple(args.auth.split(':')) if args.auth else None
     token = None
     if args.tokenfile:
