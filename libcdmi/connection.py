@@ -86,6 +86,7 @@ class Connection(object):
 
     def delete(self, remoteblob):
         """Delete specified blob"""
+        headers = self._make_headers({})
         response = requests.delete(self.endpoint + remoteblob,
-                                   auth=self.credentials)
+                                   auth=self.credentials, headers=headers)
         response.raise_for_status()
